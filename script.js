@@ -452,32 +452,52 @@ function respaldarAPantallaAMemoria() {
 }
 
 function switchTab(tab) {
-    // 1. Guardar lo que esté en pantalla antes de cambiar
+    // 1. Guardar cambios en memoria antes de movernos
     respaldarAPantallaAMemoria(); 
     tabActual = tab;
 
-    // 2. Manejo visual de botones y paneles
+    // 2. Manejo visual de la interfaz
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(`tab-${tab}`).classList.add('active');
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById(`filtros-${tab}`).classList.add('active');
 
-    // 3. SINCRONIZACIÓN OBLIGATORIA (Lo nuevo)
+    // 3. CAPTURA DE ELEMENTOS PARA SINCRONIZAR Y BLOQUEAR
     const pEspacios = document.getElementById('periodos');
     const pCualitativas = document.getElementById('periodos-cualitativas');
+    const selectorCursos = document.getElementById('cursos');
+    const selectorTurnos = document.getElementById('turnos'); // Nuevo elemento a bloquear
 
     if (tab === 'cualitativas') {
-        // Copiamos el valor del selector maestro al de cualitativas
+        // --- Período: Sincronizar y Bloquear ---
         pCualitativas.value = pEspacios.value;
-        // Bloqueamos el selector para evitar discrepancias
         pCualitativas.disabled = true;
-        pCualitativas.style.backgroundColor = "#f0f0f0"; // Opcional: tono gris de bloqueo
+        pCualitativas.style.backgroundColor = "#f0f0f0";
+
+        // --- Curso: Bloquear ---
+        selectorCursos.disabled = true;
+        selectorCursos.style.backgroundColor = "#f0f0f0";
+        selectorCursos.style.cursor = "not-allowed";
+
+        // --- Turno: Bloquear (NUEVO) ---
+        selectorTurnos.disabled = true;
+        selectorTurnos.style.backgroundColor = "#f0f0f0";
+        selectorTurnos.style.cursor = "not-allowed";
+
     } else {
-        // Al volver a espacios, el maestro siempre debe estar habilitado
+        // --- Desbloqueo Total al volver a Espacios Curriculares ---
         pEspacios.disabled = false;
+        
+        selectorCursos.disabled = false;
+        selectorCursos.style.backgroundColor = "";
+        selectorCursos.style.cursor = "default";
+
+        selectorTurnos.disabled = false;
+        selectorTurnos.style.backgroundColor = "";
+        selectorTurnos.style.cursor = "default";
     }
 
-    // 4. Validar y refrescar la tabla
+    // 4. Refrescar la vista de la tabla
     validarYFiltrar();
 }
 
@@ -492,7 +512,6 @@ function validarYFiltrar() {
         if (turno && curso && mat && per) filtrosCompletos = true;
     } else {
         const area = document.getElementById('areas-cualitativas').value;
-        // Usamos el ID específico que pusimos en el HTML
         const perC = document.getElementById('periodos-cualitativas').value;
         if (turno && curso && area && perC) filtrosCompletos = true;
     }
@@ -504,7 +523,6 @@ function validarYFiltrar() {
     }
 }
 
-// Esta función se mantiene casi igual, solo asegúrate que llame a validarYFiltrar al final
 function actualizarSelectorCursos() {
     const turnoSeleccionado = document.getElementById('turnos').value;
     const selectorCursos = document.getElementById('cursos');
@@ -519,7 +537,7 @@ function actualizarSelectorCursos() {
         });
     }
     actualizarMaterias();
-    validarYFiltrar(); // Añadimos esto para que limpie o cargue según corresponda
+    validarYFiltrar();
 }
 
 // 3. CARGAR ALUMNOS (AJUSTADO SEGÚN TU SOLICITUD)
